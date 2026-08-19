@@ -1,4 +1,4 @@
-                                         **ENTERPRISE SIEM Home Lab: End-to-End Threat Hunting & Log Analysis**
+**ENTERPRISE SIEM Home Lab: End-to-End Threat Hunting & Log Analysis**
 
 
 
