@@ -18,13 +18,13 @@ Telemetry & Forwarding Tools: Microsoft Sysmon and Splunk Universal Forwarder.
 
 # Phase 1: Infrastructure & Environment Setup
 1. Centralized Indexer Configuration
-I installed Splunk Enterprise on an Ubuntu Linux virtual machine. This served as the primary SIEM brain to receive and index all incoming network logs. 
+I successfully installed Splunk Enterprise on an Ubuntu Linux virtual machine after facing initial package errors. This served as the primary SIEM brain to receive and index all incoming network logs. 
 ![Splunk Ubuntu Installation](Screenshot%202026-08-18%20210300.png)
 
 2. Endpoint Telemetry Generation
 On the Windows 10 target, I installed Microsoft Sysmon. I utilized the industry-standard SwiftOnSecurity configuration file to ensure we captured deep, process-level system activity.
-![Sysmon Installation on Windows](Screenshot-2026-08-18-214617.png)
-![Windows Event Viewer Sysmon Logs](Screenshot-2026-08-18-232505_2.png)
+![Sysmon Installation on Windows](Screenshot%202026-08-18%20214617.png)
+![Windows Event Viewer Sysmon Logs](Screenshot%202026-08-18%20232505.png)
 
 
 3. Log Forwarder Deployment
