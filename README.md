@@ -17,12 +17,12 @@ Attacker Machine: Kali Linux.
 Telemetry & Forwarding Tools: Microsoft Sysmon and Splunk Universal Forwarder.
 
 # Phase 1: Infrastructure & Environment Setup
-1. Centralized Indexer Configuration
+1. **Centralized Indexer Configuration**
 I successfully installed Splunk Enterprise on an Ubuntu Linux virtual machine after facing initial package errors. This served as the primary SIEM brain to receive and index all incoming network logs.
 
 ![Splunk Ubuntu Installation](Screenshot%202026-08-18%20210300.png)
 
-3. Endpoint Telemetry Generation
+2. **Endpoint Telemetry Generation**
 On the Windows 10 target, I installed Microsoft Sysmon. I utilized the industry-standard SwiftOnSecurity configuration file to ensure we captured deep, process-level system activity.
 
 ![Sysmon Installation on Windows](Screenshot%202026-08-18%20214617.png)
@@ -30,7 +30,7 @@ On the Windows 10 target, I installed Microsoft Sysmon. I utilized the industry-
 ![Windows Event Viewer Sysmon Logs](Screenshot%202026-08-18%20232505.png)
 
 
-5. Log Forwarder Deployment
+3. **Log Forwarder Deployment**
 I installed the Splunk Universal Forwarder on the Windows machine. This acted as the digital bridge to automatically collect local system logs and ship them to the Ubuntu server. 
 
 # Phase 2: Log Routing & Ingestion
@@ -46,10 +46,10 @@ I then modified the inputs.conf file to specifically read the raw XML data comin
 # Phase 3: Attack Simulations
 With the monitoring pipeline active, I shifted to the Kali Linux machine to generate malicious network noise.
 
-1. Network Reconnaissance
+1. **Network Reconnaissance**
 I ran an aggressive Nmap scan (nmap -A -p-) against the Windows target. This simulated a hacker rattling the digital doorknobs to find vulnerable ports. 
 
-2. Brute-Force Password Attack
+2. **Brute-Force Password Attack**
 I utilized Hydra to execute a dictionary attack against the Windows SMB service. I hammered the administrator account with fake passwords to trigger authentication failure alarms. 
 
 # Phase 4: Challenges & Troubleshooting
