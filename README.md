@@ -40,7 +40,7 @@ I then modified the inputs.conf file to specifically read the raw XML data comin
 
 ![Successful Sysmon XML Ingestion](Screenshot%202026-08-19%20000248.png)
 
-![Successful Windows Security Log Ingestion](Screenshot%202026-08-19%20012856_2.png)
+![Successful Windows Security Log Ingestion](Screenshot%202026-08-19%20012856.png)
 
 
 # Phase 3: Attack Simulations
