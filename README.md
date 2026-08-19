@@ -18,24 +18,29 @@ Telemetry & Forwarding Tools: Microsoft Sysmon and Splunk Universal Forwarder.
 
 # Phase 1: Infrastructure & Environment Setup
 1. Centralized Indexer Configuration
-I successfully installed Splunk Enterprise on an Ubuntu Linux virtual machine after facing initial package errors. This served as the primary SIEM brain to receive and index all incoming network logs. 
+I successfully installed Splunk Enterprise on an Ubuntu Linux virtual machine after facing initial package errors. This served as the primary SIEM brain to receive and index all incoming network logs.
+
 ![Splunk Ubuntu Installation](Screenshot%202026-08-18%20210300.png)
 
-2. Endpoint Telemetry Generation
+3. Endpoint Telemetry Generation
 On the Windows 10 target, I installed Microsoft Sysmon. I utilized the industry-standard SwiftOnSecurity configuration file to ensure we captured deep, process-level system activity.
+
 ![Sysmon Installation on Windows](Screenshot%202026-08-18%20214617.png)
+
 ![Windows Event Viewer Sysmon Logs](Screenshot%202026-08-18%20232505.png)
 
 
-3. Log Forwarder Deployment
+5. Log Forwarder Deployment
 I installed the Splunk Universal Forwarder on the Windows machine. This acted as the digital bridge to automatically collect local system logs and ship them to the Ubuntu server. 
 
 # Phase 2: Log Routing & Ingestion
 To connect the systems, I manually configured the forwarder's internal files. I edited the outputs.conf file to point directly to the Ubuntu server's IP address on port 9997.
 
 I then modified the inputs.conf file to specifically read the raw XML data coming from Sysmon. Later, I expanded this configuration to also capture standard Windows Security logs. 
-![Successful Sysmon XML Ingestion](Screenshot-2026-08-19-000248.jpg)
-![Successful Windows Security Log Ingestion](Screenshot-2026-08-19-012856_2.png)
+
+![Successful Sysmon XML Ingestion](Screenshot%202026-08-19%20000248.jpg)
+
+![Successful Windows Security Log Ingestion](Screenshot%202026-08-19%20012856_2.png)
 
 
 # Phase 3: Attack Simulations
@@ -51,19 +56,22 @@ I utilized Hydra to execute a dictionary attack against the Windows SMB service.
 Real-world security engineering requires intense troubleshooting. Here is a breakdown of every roadblock encountered and how it was successfully resolved. 
 
 **Problem 1: Splunk Disk Space Safety Lock**
-![Splunk Minimum Free Disk Space Error](Screenshot-2026-08-18-223348.png)
 
 **The Issue**: Splunk paused all searching because the Ubuntu disk fell below the default 5000MB free space limit.
+
+![Splunk Minimum Free Disk Space Error](Screenshot%202026-08-18%20223348.png)
 
 **The Fix**: I opened the Ubuntu terminal and edited the server.conf file using Nano. I added a [diskUsage] override to lower the minFreeSpace threshold to 500MB, then restarted Splunk. 
 
 **Problem 2: Network Connectivity & Closed Ports**
 
 **The Issue**: The Splunk dashboard showed zero events, indicating a broken bridge between Windows and Ubuntu.
-![Empty Dashboard Zero Events](Screenshot-2026-08-18-224654.png)
 
-**The Fix**: I used Test-NetConnection in Windows PowerShell to verify the network routing was active. I then opened port 9997 on the Ubuntu server using the UFW firewall to allow the logs inside. 
-![Verifying Port 9997 is Listening on Ubuntu](Screenshot-2026-08-18-231553.png)
+![Empty Dashboard Zero Events](Screenshot%202026-08-18%20224654.png)
+
+**The Fix**: I used Test-NetConnection in Windows PowerShell to verify the network routing was active. I then opened port 9997 on the Ubuntu server using the UFW firewall to allow the logs inside.
+
+![Verifying Port 9997 is Listening on Ubuntu](Screenshot%202026-08-18%20231553.png)
 
 Problem 3: Forwarder Service Permissions
 
@@ -74,8 +82,10 @@ Problem 3: Forwarder Service Permissions
 Problem 4: The Hidden .txt Extension Trap
 
 **The Issue**: Windows Notepad secretly saved the configuration file as inputs.conf.txt. Splunk completely ignored it because of the wrong file extension.
-![Misconfigured input.conf file](Screenshot-2026-08-18-222554.png)
-![Splunkd.log showing Sysmon being ignored](Screenshot-2026-08-18-234107_2.png)
+
+![Misconfigured input.conf file](Screenshot%202026-08-18%20222554.png)
+
+![Splunkd.log showing Sysmon being ignored](Screenshot%202026-08-18%20234107.png)
 
 **The Fix**: Instead of relying on a graphical text editor, I wrote a custom PowerShell script. The script forcefully injected the correct text directly into a raw .conf file and rebooted the forwarder. 
 
@@ -88,22 +98,27 @@ Problem 5: Corrupted Fishbucket Memory
 Problem 6: Invisible Brute-Force Attacks
 
 **The Issue**: The Hydra brute-force attack successfully ran, but no EventCode 4625 (Failed Logon) logs appeared in Splunk.
-![Empty Search Results Due to Windows Firewall](Screenshot-2026-08-19-013122_2.png)
+
+![Empty Search Results Due to Windows Firewall](Screenshot%202026-08-19%20013122.png)
 
 **The Fix**: I discovered the Windows Defender Firewall was silently dropping the malicious traffic before the password check occurred. I disabled the firewall to expose the service. I also modified the Windows Local Security Policy to force the operating system to audit both successful and failed logons. 
 
 # Phase 5: Threat Hunting Results
 After successfully troubleshooting the pipeline and lowering the endpoint defenses, I pivoted to the SIEM dashboard. I utilized raw text SPL queries to hunt down the simulated attacks. 
 
-Identified System Access: Successfully queried and visualized EventCode 4624 (Successful Logon) and EventCode 4672 (Special Privileges Assigned) to track administrative access.
-![Event Code 4672 Special Privileges](Screenshot-2026-08-19-014215_3.png)
-![Event Code 4624 Successful Logon](Screenshot-2026-08-19-015621_2.png)
+**Identified System Access**: Successfully queried and visualized EventCode 4624 (Successful Logon) and EventCode 4672 (Special Privileges Assigned) to track administrative access.
 
-Captured Physical Interactions: Identified EventCode 4801 the exact moment the workstation was manually locked during testing. 
-![Event Code 4801 Workstation Locked](Screenshot-2026-08-19-020213_2.png)
+![Event Code 4672 Special Privileges](Screenshot%202026-08-19%20014215.png)
 
-Detected Brute-Force Activity: Captured a massive spike of EventCode 4625 (Failed Logon) alerts generated by the simulated Hydra attack and manual password failures. 
-![Event Code 4625 Failed Logon Attempts](Screenshot-2026-08-19-020918_2.png)
+![Event Code 4624 Successful Logon](Screenshot%202026-08-19%20015621.png)
+
+**Captured Physical Interactions**: Identified EventCode 4801 the exact moment the workstation was manually locked during testing. 
+
+![Event Code 4801 Workstation Locked](Screenshot%202026-08-19%20020213.png)
+
+**Detected Brute-Force Activity**: Captured a massive spike of EventCode 4625 (Failed Logon) alerts generated by the simulated Hydra attack and manual password failures. 
+
+![Event Code 4625 Failed Logon Attempts](Screenshot%202026-08-19%20020918.png)
 
 # Conclusion
 This hands-on lab successfully demonstrated the complete lifecycle of a SIEM pipeline. It required navigating complex network routing, overcoming strict operating system security policies, and writing granular data ingestion scripts. The result is a highly functional, enterprise-grade threat hunting environment! 
