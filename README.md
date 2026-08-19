@@ -38,7 +38,7 @@ To connect the systems, I manually configured the forwarder's internal files. I 
 
 I then modified the inputs.conf file to specifically read the raw XML data coming from Sysmon. Later, I expanded this configuration to also capture standard Windows Security logs. 
 
-![Successful Sysmon XML Ingestion](Screenshot%202026-08-19%20000248.jpg)
+![Successful Sysmon XML Ingestion](Screenshot%202026-08-19%20000248.png)
 
 ![Successful Windows Security Log Ingestion](Screenshot%202026-08-19%20012856_2.png)
 
